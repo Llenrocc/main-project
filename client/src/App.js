@@ -1,20 +1,63 @@
-import React, { Component } from "react";
-import logo from "./logo.svg";
+import React, { useState } from "react";
+import Login from './pages/Login';
+import logo from './logo/reachme_logo.png';
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import { Jumbotron, Container } from 'react-bootstrap';
 import "./App.css";
+import SignupModal from './components/Modal';
+import NoMatch from './pages/NoMatch';
+import Homepage from './pages/Homepage';
+import ProfilePage from './pages/ProfilePage';
+import AddPost from './pages/AddPost';
+import Users from './pages/Users';
+import session from "./utils/session";
 
 function App() {
+  const [modalShow, setModalShow] = useState(false);
+
+  const handleOnClick = (e) => {
+    e.preventDefault();
+    setModalShow(true);
+  }
+
   return (
-    <div className="App">
-      <div className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h2>Welcome to React</h2>
-      </div>
-      <p className="App-intro">
-        To get started, edit <code>src/App.js</code> and save to reload.
-      </p>
-    </div>
+    <Router>
+      <div className="App">
+        <Switch>
+          <Route exact path="/login">
+            <Container style={{ width: "35%" }}>
+              <img src={logo} alt="logo" />
+              <Jumbotron style={{ backgroundImage: "linear-gradient(to right, #ffecd2 0%, #fcb69f 100%)", }}>
+                <Login handleOnClick={handleOnClick} />
+                <SignupModal
+                  show={modalShow}
+                  onHide={() => setModalShow(false)} />
+              </Jumbotron>
+            </Container>
+          </Route>
+          {
+            !session.get() &&
+              <Redirect to="/login" />
+          }
+          <Route exact path={["/home", "/"]}>
+            <Homepage />
+          </Route>
+          <Route exact path="/profile/:user_id" children={<ProfilePage />}>
+            <ProfilePage />
+          </Route>
+          <Route exact path="/addPost">
+            <AddPost />
+          </Route>
+          <Route exact path="/friends">
+            <Users />
+          </Route>
+          <Route>
+            <NoMatch />
+          </Route>
+        </Switch>
+      </div >
+    </Router>
   );
 }
-
 
 export default App;
